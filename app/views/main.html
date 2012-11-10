@@ -1,0 +1,11 @@
+<style>
+.map {
+  height: 400px;
+  width: 600px;
+}
+</style>
+<input type="number" ng-model="zoom"/>
+<gmap-map class="map" options="mapOptions" 
+          zoom="zoom" map-type-id="'roadmap'"
+          click="addMarker($event)"
+          />
