@@ -25,7 +25,7 @@
         Lat: {{currentMarkerLat}}, Lng: {{currentMarkerLng}}
       </div>
     </gmap-info-window>
-    <gmap-map class="map span8" options="mapOptions" widget="myMap"
+    <gmap-map id="map_canvas" class="map span8" options="mapOptions" widget="myMap"
               center="currentMapCenter" zoom="zoom" map-type-id="'roadmap'"
               click="addMarker($event)">
       <gmap-marker ng-repeat="location in locations"
