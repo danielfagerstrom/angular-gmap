@@ -38,7 +38,6 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
   replace: true
   template: '<div></div>'
   link: (scope, elm, attrs) ->
-    console.log scope, attrs
     opts = angular.extend {}, scope.$eval(attrs.options)
     if attrs.widget
       widget = $parse attrs.widget
@@ -48,4 +47,25 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
     
     bindMapEvents scope, attrs, $parse, mapEvents, map
     bindMapAttributes scope, attrs, $parse, mapAttributes, map
+]
+
+app.directive 'gmapMarker', ['$parse', ($parse) ->
+  events = 'animation_changed click clickable_changed cursor_changed ' +
+    'dblclick drag dragend draggable_changed dragstart flat_changed icon_changed ' +
+    'mousedown mouseout mouseover mouseup position_changed rightclick ' +
+    'shadow_changed shape_changed title_changed visible_changed zindex_changed'
+  attributes = 'animation clickable cursor draggable flat icon map position ' +
+    'shadow shape title visible zIndex'
+  restrict: 'E'
+  replace: true
+  template: '<div></div>'
+  link: (scope, elm, attrs) ->
+    if attrs.widget
+      scopeWidget = $parse attrs.widget
+      widget = scopeWidget scope
+    widget ?= new google.maps.Marker {}
+    scopeWidget.assign scope, widget if attrs.widget
+    
+    bindMapEvents scope, attrs, $parse, events, widget
+    bindMapAttributes scope, attrs, $parse, attributes, widget
 ]

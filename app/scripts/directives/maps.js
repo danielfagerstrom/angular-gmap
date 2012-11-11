@@ -86,7 +86,6 @@
         template: '<div></div>',
         link: function(scope, elm, attrs) {
           var map, opts, widget;
-          console.log(scope, attrs);
           opts = angular.extend({}, scope.$eval(attrs.options));
           if (attrs.widget) {
             widget = $parse(attrs.widget);
@@ -100,6 +99,34 @@
           }
           bindMapEvents(scope, attrs, $parse, mapEvents, map);
           return bindMapAttributes(scope, attrs, $parse, mapAttributes, map);
+        }
+      };
+    }
+  ]);
+
+  app.directive('gmapMarker', [
+    '$parse', function($parse) {
+      var attributes, events;
+      events = 'animation_changed click clickable_changed cursor_changed ' + 'dblclick drag dragend draggable_changed dragstart flat_changed icon_changed ' + 'mousedown mouseout mouseover mouseup position_changed rightclick ' + 'shadow_changed shape_changed title_changed visible_changed zindex_changed';
+      attributes = 'animation clickable cursor draggable flat icon map position ' + 'shadow shape title visible zIndex';
+      return {
+        restrict: 'E',
+        replace: true,
+        template: '<div></div>',
+        link: function(scope, elm, attrs) {
+          var scopeWidget, widget;
+          if (attrs.widget) {
+            scopeWidget = $parse(attrs.widget);
+            widget = scopeWidget(scope);
+          }
+          if (widget == null) {
+            widget = new google.maps.Marker({});
+          }
+          if (attrs.widget) {
+            scopeWidget.assign(scope, widget);
+          }
+          bindMapEvents(scope, attrs, $parse, events, widget);
+          return bindMapAttributes(scope, attrs, $parse, attributes, widget);
         }
       };
     }
