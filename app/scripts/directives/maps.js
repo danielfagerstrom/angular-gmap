@@ -85,10 +85,19 @@
         replace: true,
         template: '<div></div>',
         link: function(scope, elm, attrs) {
-          var map, opts;
+          var map, opts, widget;
           console.log(scope, attrs);
           opts = angular.extend({}, scope.$eval(attrs.options));
-          map = new google.maps.Map(elm[0], opts);
+          if (attrs.widget) {
+            widget = $parse(attrs.widget);
+            map = widget(scope);
+          }
+          if (map == null) {
+            map = new google.maps.Map(elm[0], opts);
+          }
+          if (attrs.widget) {
+            widget.assign(scope, map);
+          }
           bindMapEvents(scope, attrs, $parse, mapEvents, map);
           return bindMapAttributes(scope, attrs, $parse, mapAttributes, map);
         }

@@ -11,14 +11,15 @@
   <div class="row">
     <div class="span3">
       <h4>Click to add a marker!</h4>
-      <input type="number" ng-model="zoom"/>
+      <label>Zoom Level</label>
+      <input class="input-mini" type="number" ng-model="zoom"/>
       <ul>
         <li ng-repeat="location in locations">
           <a class="btn" ng-click="panTo(location)">Pan to Marker {{$index}}</a>
         </li>
       </ul>
     </div>
-    <gmap-map class="map span8" options="mapOptions" 
+    <gmap-map class="map span8" options="mapOptions" widget="myMap"
               center="currentMapCenter" zoom="zoom" map-type-id="'roadmap'"
               click="addMarker($event)"></gmap-map>
   </div>

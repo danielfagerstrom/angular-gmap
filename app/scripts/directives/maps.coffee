@@ -40,7 +40,12 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
   link: (scope, elm, attrs) ->
     console.log scope, attrs
     opts = angular.extend {}, scope.$eval(attrs.options)
-    map = new google.maps.Map elm[0], opts
+    if attrs.widget
+      widget = $parse attrs.widget
+      map = widget scope
+    map ?= new google.maps.Map elm[0], opts
+    widget.assign scope, map if attrs.widget
+    
     bindMapEvents scope, attrs, $parse, mapEvents, map
     bindMapAttributes scope, attrs, $parse, mapAttributes, map
 ]

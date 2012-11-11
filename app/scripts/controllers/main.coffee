@@ -8,4 +8,6 @@ angular.module('angularGmapApp')
       $scope.locations.push evt.latLng
     $scope.panTo = (location) ->
       $scope.currentMapCenter = location
-      
+
+    $scope.$watch 'myMap', (map)->
+      console.log {map}

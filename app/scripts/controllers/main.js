@@ -7,9 +7,14 @@
     $scope.addMarker = function(evt) {
       return $scope.locations.push(evt.latLng);
     };
-    return $scope.panTo = function(location) {
+    $scope.panTo = function(location) {
       return $scope.currentMapCenter = location;
     };
+    return $scope.$watch('myMap', function(map) {
+      return console.log({
+        map: map
+      });
+    });
   });
 
 }).call(this);
