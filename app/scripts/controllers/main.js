@@ -8,7 +8,7 @@
       return $scope.locations.push(evt.latLng);
     };
     $scope.panTo = function(location) {
-      return $scope.currentMapCenter = location;
+      return $scope.myMap.panTo(location);
     };
     return $scope.openMarkerInfo = function(marker) {
       $scope.currentMarkerLat = marker.getPosition().lat();
