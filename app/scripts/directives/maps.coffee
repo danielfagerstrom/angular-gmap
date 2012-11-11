@@ -11,7 +11,7 @@ bindMapEvents = (scope, attrs, $parse, eventsStr, googleObject) ->
       getter = $parse attrs[normalizedMapEvent]
       google.maps.event.addListener googleObject, gmEventName, (evt, params...) ->
         scope.$apply ->
-          getter(scope, $event: evt, $params:params)
+          getter(scope, $target: googleObject, $event: evt, $params:params)
 
 bindMapAttributes = (scope, attrs, $parse, attributesStr, googleObject) ->
   for bindAttr in attributesStr.split(' ') when bindAttr of attrs

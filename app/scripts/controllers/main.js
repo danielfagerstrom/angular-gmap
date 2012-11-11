@@ -10,6 +10,9 @@
     $scope.panTo = function(location) {
       return $scope.currentMapCenter = location;
     };
+    $scope.openMarkerInfo = function(marker) {
+      return console.log(this, marker);
+    };
     return $scope.$watch('myMap', function(map) {
       return console.log({
         map: map
