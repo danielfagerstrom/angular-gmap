@@ -10,14 +10,11 @@
     $scope.panTo = function(location) {
       return $scope.currentMapCenter = location;
     };
-    $scope.openMarkerInfo = function(marker) {
-      return console.log(this, marker);
+    return $scope.openMarkerInfo = function(marker) {
+      $scope.currentMarkerLat = marker.getPosition().lat();
+      $scope.currentMarkerLng = marker.getPosition().lng();
+      return $scope.myInfoWindow.open($scope.myMap, marker);
     };
-    return $scope.$watch('myMap', function(map) {
-      return console.log({
-        map: map
-      });
-    });
   });
 
 }).call(this);

@@ -9,8 +9,6 @@ angular.module('angularGmapApp')
     $scope.panTo = (location) ->
       $scope.currentMapCenter = location
     $scope.openMarkerInfo = (marker) ->
-      console.log this, marker
-      
-
-    $scope.$watch 'myMap', (map)->
-      console.log {map}
+      $scope.currentMarkerLat = marker.getPosition().lat()
+      $scope.currentMarkerLng = marker.getPosition().lng()
+      $scope.myInfoWindow.open $scope.myMap, marker

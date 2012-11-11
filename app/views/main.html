@@ -19,6 +19,12 @@
         </li>
       </ul>
     </div>
+    <gmap-info-window widget="myInfoWindow">
+      <div>
+        <h1>Marker</h1>
+        Lat: {{currentMarkerLat}}, Lng: {{currentMarkerLng}}
+      </div>
+    </gmap-info-window>
     <gmap-map class="map span8" options="mapOptions" widget="myMap"
               center="currentMapCenter" zoom="zoom" map-type-id="'roadmap'"
               click="addMarker($event)">

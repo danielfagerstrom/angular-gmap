@@ -170,4 +170,43 @@
     }
   ]);
 
+  app.directive('gmapInfoWindow', [
+    '$parse', function($parse) {
+      var attributes, events;
+      events = 'closeclick content_change domready position_changed zindex_changed';
+      attributes = 'content position zindex';
+      return {
+        restrict: 'E',
+        replace: true,
+        transclude: true,
+        template: '<div style="display: none"><div ng-transclude></div></div>',
+        compile: function(tElm, tAttrs) {
+          return function(scope, elm, attrs) {
+            var opts, scopeWidget, widget, _open;
+            opts = angular.extend({}, scope.$eval(attrs.options));
+            opts.content = tElm.children()[0];
+            if (attrs.widget) {
+              scopeWidget = $parse(attrs.widget);
+              widget = scopeWidget(scope);
+            }
+            if (widget == null) {
+              widget = new google.maps.InfoWindow(opts);
+            }
+            if (attrs.widget) {
+              scopeWidget.assign(scope, widget);
+            }
+            bindMapEvents(scope, attrs, $parse, events, widget);
+            bindMapAttributes(scope, attrs, $parse, attributes, widget);
+            _open = widget.open;
+            return widget.open = function() {
+              var args;
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+              return _open.call.apply(_open, [widget].concat(__slice.call(args)));
+            };
+          };
+        }
+      };
+    }
+  ]);
+
 }).call(this);

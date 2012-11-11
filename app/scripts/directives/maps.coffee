@@ -85,3 +85,28 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
     bindMapEvents scope, attrs, $parse, events, widget
     bindMapAttributes scope, attrs, $parse, attributes, widget
 ]
+
+app.directive 'gmapInfoWindow', ['$parse', ($parse) ->
+  events = 'closeclick content_change domready position_changed zindex_changed'
+  attributes = 'content position zindex'
+  restrict: 'E'
+  replace: true
+  transclude: true
+  template: '<div style="display: none"><div ng-transclude></div></div>'
+  compile: (tElm, tAttrs) ->
+    (scope, elm, attrs) ->
+      opts = angular.extend {}, scope.$eval(attrs.options)
+      opts.content = tElm.children()[0]
+      if attrs.widget
+        scopeWidget = $parse attrs.widget
+        widget = scopeWidget scope
+      widget ?= new google.maps.InfoWindow opts
+      scopeWidget.assign scope, widget if attrs.widget
+      
+      bindMapEvents scope, attrs, $parse, events, widget
+      bindMapAttributes scope, attrs, $parse, attributes, widget
+
+      _open = widget.open
+      widget.open = (args...) ->
+        _open.call widget, args...
+]
