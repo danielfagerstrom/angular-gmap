@@ -1,5 +1,5 @@
 (function() {
-  var app, bindMapAttributes, bindMapEvents, capitalize,
+  var GMapMapController, app, bindMapAttributes, bindMapEvents, capitalize,
     __slice = [].slice;
 
   app = angular.module('gmap', []);
@@ -75,31 +75,62 @@
     return _results;
   };
 
+  GMapMapController = (function() {
+
+    function GMapMapController() {}
+
+    GMapMapController.prototype.setMap = function(map) {
+      this.map = map;
+    };
+
+    GMapMapController.prototype.getMap = function() {
+      return this.map;
+    };
+
+    return GMapMapController;
+
+  })();
+
   app.directive('gmapMap', [
     '$parse', function($parse) {
       var mapAttributes, mapEvents;
       mapEvents = 'bounds_changed center_changed click dblclick drag dragend ' + 'dragstart heading_changed idle maptypeid_changed mousemove mouseout ' + 'mouseover projection_changed resize rightclick tilesloaded tilt_changed ' + 'zoom_changed';
       mapAttributes = 'center zoom mapTypeId';
       return {
+        controller: GMapMapController,
         restrict: 'E',
         replace: true,
         transclude: true,
-        template: '<div><div ng-transclude></div></div>',
-        link: function(scope, elm, attrs) {
-          var map, opts, widget;
-          opts = angular.extend({}, scope.$eval(attrs.options));
-          if (attrs.widget) {
-            widget = $parse(attrs.widget);
-            map = widget(scope);
+        template: '<div><div></div><div ng-transclude></div></div>',
+        compile: function(tElm, tAttrs) {
+          var attr, mapDiv, _i, _len, _ref;
+          mapDiv = tElm.children().eq(0);
+          _ref = ['class', 'id', 'style'];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            attr = _ref[_i];
+            if (!(attr in tAttrs)) {
+              continue;
+            }
+            mapDiv.attr(attr, tAttrs[attr]);
+            tElm.removeAttr(attr);
           }
-          if (map == null) {
-            map = new google.maps.Map(elm[0], opts);
-          }
-          if (attrs.widget) {
-            widget.assign(scope, map);
-          }
-          bindMapEvents(scope, attrs, $parse, mapEvents, map);
-          return bindMapAttributes(scope, attrs, $parse, mapAttributes, map);
+          return function(scope, elm, attrs, controller) {
+            var map, opts, widget;
+            opts = angular.extend({}, scope.$eval(attrs.options));
+            if (attrs.widget) {
+              widget = $parse(attrs.widget);
+              map = widget(scope);
+            }
+            if (map == null) {
+              map = new google.maps.Map(elm.children()[0], opts);
+            }
+            if (attrs.widget) {
+              widget.assign(scope, map);
+            }
+            controller.setMap(map);
+            bindMapEvents(scope, attrs, $parse, mapEvents, map);
+            return bindMapAttributes(scope, attrs, $parse, mapAttributes, map);
+          };
         }
       };
     }
@@ -111,11 +142,12 @@
       events = 'animation_changed click clickable_changed cursor_changed ' + 'dblclick drag dragend draggable_changed dragstart flat_changed icon_changed ' + 'mousedown mouseout mouseover mouseup position_changed rightclick ' + 'shadow_changed shape_changed title_changed visible_changed zindex_changed';
       attributes = 'animation clickable cursor draggable flat icon map position ' + 'shadow shape title visible zIndex';
       return {
+        require: '^?gmapMap',
         restrict: 'E',
         replace: true,
         template: '<div></div>',
-        link: function(scope, elm, attrs) {
-          var scopeWidget, widget;
+        link: function(scope, elm, attrs, controller) {
+          var map, scopeWidget, widget;
           if (attrs.widget) {
             scopeWidget = $parse(attrs.widget);
             widget = scopeWidget(scope);
@@ -125,6 +157,10 @@
           }
           if (attrs.widget) {
             scopeWidget.assign(scope, widget);
+          }
+          if (controller) {
+            map = controller.getMap();
+            widget.setMap(map);
           }
           bindMapEvents(scope, attrs, $parse, events, widget);
           return bindMapAttributes(scope, attrs, $parse, attributes, widget);
