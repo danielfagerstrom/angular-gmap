@@ -36,7 +36,8 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
   mapAttributes = 'center zoom mapTypeId'
   restrict: 'E'
   replace: true
-  template: '<div></div>'
+  transclude: true
+  template: '<div><div ng-transclude></div></div>'
   link: (scope, elm, attrs) ->
     opts = angular.extend {}, scope.$eval(attrs.options)
     if attrs.widget

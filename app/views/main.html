@@ -19,12 +19,13 @@
         </li>
       </ul>
     </div>
-    <gmap-marker ng-repeat="location in locations"
-                 position="location" 
-                 map="myMap"></gmap-marker>
     <gmap-map class="map span8" options="mapOptions" widget="myMap"
               center="currentMapCenter" zoom="zoom" map-type-id="'roadmap'"
-              click="addMarker($event)"></gmap-map>
+              click="addMarker($event)">
+      <gmap-marker ng-repeat="location in locations"
+                   position="location" 
+                   map="myMap"></gmap-marker>
+    </gmap-map>
   </div>
 </div>
 

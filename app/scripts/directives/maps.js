@@ -83,7 +83,8 @@
       return {
         restrict: 'E',
         replace: true,
-        template: '<div></div>',
+        transclude: true,
+        template: '<div><div ng-transclude></div></div>',
         link: function(scope, elm, attrs) {
           var map, opts, widget;
           opts = angular.extend({}, scope.$eval(attrs.options));
