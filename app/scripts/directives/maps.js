@@ -31,13 +31,14 @@
           return google.maps.event.addListener(googleObject, gmEventName, function() {
             var evt, params;
             evt = arguments[0], params = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-            return scope.$apply(function() {
-              return getter(scope, {
-                $target: googleObject,
-                $event: evt,
-                $params: params
-              });
+            getter(scope, {
+              $target: googleObject,
+              $event: evt,
+              $params: params
             });
+            if (!scope.$$phase) {
+              return scope.$apply();
+            }
           });
         })(normalizedMapEvent));
       }
@@ -52,7 +53,7 @@
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       bindAttr = _ref[_i];
       if (bindAttr in attrs) {
-        _results.push((function(bindAttr) {
+        _results.push((function(bindAttr, loopLock) {
           var getter, gmEventName, gmGetterName, gmSetterName, setter;
           gmGetterName = "get" + (capitalize(bindAttr));
           gmSetterName = "set" + (capitalize(bindAttr));
@@ -60,17 +61,31 @@
           getter = $parse(attrs[bindAttr]);
           setter = getter.assign;
           scope.$watch(getter, function(value) {
-            return googleObject[gmSetterName](value);
+            if (!loopLock) {
+              try {
+                loopLock = true;
+                return googleObject[gmSetterName](value);
+              } finally {
+                loopLock = false;
+              }
+            }
           });
           if (setter != null) {
             return google.maps.event.addListener(googleObject, gmEventName, function() {
-              setter(scope, googleObject[gmGetterName]());
-              if (!scope.$$phase) {
-                return scope.$apply();
+              if (!loopLock) {
+                try {
+                  loopLock = true;
+                  setter(scope, googleObject[gmGetterName]());
+                  if (!scope.$$phase) {
+                    return scope.$apply();
+                  }
+                } finally {
+                  loopLock = false;
+                }
               }
             });
           }
-        })(bindAttr));
+        })(bindAttr, false));
       }
     }
     return _results;

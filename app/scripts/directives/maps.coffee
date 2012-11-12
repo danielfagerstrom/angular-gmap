@@ -10,23 +10,33 @@ bindMapEvents = (scope, attrs, $parse, eventsStr, googleObject) ->
       gmEventName = attrs.$attr[normalizedMapEvent]
       getter = $parse attrs[normalizedMapEvent]
       google.maps.event.addListener googleObject, gmEventName, (evt, params...) ->
-        scope.$apply ->
-          getter(scope, $target: googleObject, $event: evt, $params:params)
+        getter(scope, $target: googleObject, $event: evt, $params:params)
+        scope.$apply() unless scope.$$phase
 
 bindMapAttributes = (scope, attrs, $parse, attributesStr, googleObject) ->
   for bindAttr in attributesStr.split(' ') when bindAttr of attrs
-    do (bindAttr) ->
+    do (bindAttr, loopLock=false) ->
       gmGetterName = "get#{capitalize bindAttr}"
       gmSetterName = "set#{capitalize bindAttr}"
       gmEventName = "#{bindAttr.toLowerCase()}_changed"
       getter = $parse attrs[bindAttr]
       setter = getter.assign
       scope.$watch getter, (value) ->
-        googleObject[gmSetterName] value
+        unless loopLock
+          try
+            loopLock = true
+            googleObject[gmSetterName] value
+          finally
+            loopLock = false
       if setter?
         google.maps.event.addListener googleObject, gmEventName, ->
-          setter scope, googleObject[gmGetterName]()
-          scope.$apply() unless scope.$$phase
+          unless loopLock
+            try
+              loopLock = true
+              setter scope, googleObject[gmGetterName]()
+              scope.$apply() unless scope.$$phase
+            finally
+              loopLock = false
 
 class GMapMapController
   setMap: (@map) ->
