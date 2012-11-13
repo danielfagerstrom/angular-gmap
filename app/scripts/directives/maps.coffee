@@ -43,11 +43,11 @@ class GMapMapController
   getMap: -> @map
 
 app.directive 'gmapMap', ['$parse', ($parse) ->
-  mapEvents = 'bounds_changed center_changed click dblclick drag dragend ' +
+  events = 'bounds_changed center_changed click dblclick drag dragend ' +
     'dragstart heading_changed idle maptypeid_changed mousemove mouseout ' +
     'mouseover projection_changed resize rightclick tilesloaded tilt_changed ' +
     'zoom_changed'
-  mapAttributes = 'center zoom mapTypeId'
+  attributes = 'center heading mapTypeId tilt zoom'
   controller: GMapMapController
   restrict: 'E'
   compile: (tElm, tAttrs) ->
@@ -59,14 +59,14 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
     (scope, elm, attrs, controller) ->
       opts = angular.extend {}, scope.$eval(attrs.options)
       if attrs.widget
-        widget = $parse attrs.widget
-        map = widget scope
-      map ?= new google.maps.Map elm.children()[0], opts
-      widget.assign scope, map if attrs.widget
-      controller.setMap map
+        scopeWidget = $parse attrs.widget
+        widget = scopeWidget scope
+      widget ?= new google.maps.Map elm.children()[0], opts
+      scopeWidget.assign scope, widget if attrs.widget
+      controller.setMap widget
       
-      bindMapEvents scope, attrs, $parse, mapEvents, map
-      bindMapAttributes scope, attrs, $parse, mapAttributes, map
+      bindMapEvents scope, attrs, $parse, events, widget
+      bindMapAttributes scope, attrs, $parse, attributes, widget
 ]
 
 app.directive 'gmapMarker', ['$parse', ($parse) ->
@@ -79,10 +79,11 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
   require: '^?gmapMap'
   restrict: 'E'
   link: (scope, elm, attrs, controller) ->
+    opts = angular.extend {}, scope.$eval(attrs.options)
     if attrs.widget
       scopeWidget = $parse attrs.widget
       widget = scopeWidget scope
-    widget ?= new google.maps.Marker {}
+    widget ?= new google.maps.Marker opts
     scopeWidget.assign scope, widget if attrs.widget
     if controller
       map = controller.getMap()

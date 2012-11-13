@@ -109,9 +109,9 @@
 
   app.directive('gmapMap', [
     '$parse', function($parse) {
-      var mapAttributes, mapEvents;
-      mapEvents = 'bounds_changed center_changed click dblclick drag dragend ' + 'dragstart heading_changed idle maptypeid_changed mousemove mouseout ' + 'mouseover projection_changed resize rightclick tilesloaded tilt_changed ' + 'zoom_changed';
-      mapAttributes = 'center zoom mapTypeId';
+      var attributes, events;
+      events = 'bounds_changed center_changed click dblclick drag dragend ' + 'dragstart heading_changed idle maptypeid_changed mousemove mouseout ' + 'mouseover projection_changed resize rightclick tilesloaded tilt_changed ' + 'zoom_changed';
+      attributes = 'center heading mapTypeId tilt zoom';
       return {
         controller: GMapMapController,
         restrict: 'E',
@@ -129,21 +129,21 @@
             tElm.removeAttr(attr);
           }
           return function(scope, elm, attrs, controller) {
-            var map, opts, widget;
+            var opts, scopeWidget, widget;
             opts = angular.extend({}, scope.$eval(attrs.options));
             if (attrs.widget) {
-              widget = $parse(attrs.widget);
-              map = widget(scope);
+              scopeWidget = $parse(attrs.widget);
+              widget = scopeWidget(scope);
             }
-            if (map == null) {
-              map = new google.maps.Map(elm.children()[0], opts);
+            if (widget == null) {
+              widget = new google.maps.Map(elm.children()[0], opts);
             }
             if (attrs.widget) {
-              widget.assign(scope, map);
+              scopeWidget.assign(scope, widget);
             }
-            controller.setMap(map);
-            bindMapEvents(scope, attrs, $parse, mapEvents, map);
-            return bindMapAttributes(scope, attrs, $parse, mapAttributes, map);
+            controller.setMap(widget);
+            bindMapEvents(scope, attrs, $parse, events, widget);
+            return bindMapAttributes(scope, attrs, $parse, attributes, widget);
           };
         }
       };
@@ -159,13 +159,14 @@
         require: '^?gmapMap',
         restrict: 'E',
         link: function(scope, elm, attrs, controller) {
-          var map, scopeWidget, widget;
+          var map, opts, scopeWidget, widget;
+          opts = angular.extend({}, scope.$eval(attrs.options));
           if (attrs.widget) {
             scopeWidget = $parse(attrs.widget);
             widget = scopeWidget(scope);
           }
           if (widget == null) {
-            widget = new google.maps.Marker({});
+            widget = new google.maps.Marker(opts);
           }
           if (attrs.widget) {
             scopeWidget.assign(scope, widget);
