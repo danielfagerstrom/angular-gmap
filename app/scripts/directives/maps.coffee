@@ -39,8 +39,14 @@ bindMapProperties = (scope, attrs, $parse, propertiesStr, googleObject) ->
               loopLock = false
 
 class GMapMapController
-  setMap: (@map) ->
-  getMap: -> @map
+  constructor: ($q) ->
+    @map = $q.defer()
+  setMap: (map) ->
+    @map.resolve map
+  getMap: ->
+    @map.promise
+
+GMapMapController.$inject = ['$q']
 
 app.directive 'gmapMap', ['$parse', ($parse) ->
   events = 'bounds_changed center_changed click dblclick drag dragend ' +
@@ -86,9 +92,9 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
     widget ?= new google.maps.Marker opts
     scopeWidget.assign scope, widget if attrs.widget
     if controller
-      map = controller.getMap()
-      widget.setMap map
-    
+      controller.getMap().then (map) ->
+        widget.setMap map
+
     bindMapEvents scope, attrs, $parse, events, widget
     bindMapProperties scope, attrs, $parse, properties, widget
 ]

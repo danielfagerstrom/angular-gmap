@@ -93,19 +93,23 @@
 
   GMapMapController = (function() {
 
-    function GMapMapController() {}
+    function GMapMapController($q) {
+      this.map = $q.defer();
+    }
 
     GMapMapController.prototype.setMap = function(map) {
-      this.map = map;
+      return this.map.resolve(map);
     };
 
     GMapMapController.prototype.getMap = function() {
-      return this.map;
+      return this.map.promise;
     };
 
     return GMapMapController;
 
   })();
+
+  GMapMapController.$inject = ['$q'];
 
   app.directive('gmapMap', [
     '$parse', function($parse) {
@@ -159,7 +163,7 @@
         require: '^?gmapMap',
         restrict: 'E',
         link: function(scope, elm, attrs, controller) {
-          var map, opts, scopeWidget, widget;
+          var opts, scopeWidget, widget;
           opts = angular.extend({}, scope.$eval(attrs.options));
           if (attrs.widget) {
             scopeWidget = $parse(attrs.widget);
@@ -172,8 +176,9 @@
             scopeWidget.assign(scope, widget);
           }
           if (controller) {
-            map = controller.getMap();
-            widget.setMap(map);
+            controller.getMap().then(function(map) {
+              return widget.setMap(map);
+            });
           }
           bindMapEvents(scope, attrs, $parse, events, widget);
           return bindMapProperties(scope, attrs, $parse, properties, widget);
