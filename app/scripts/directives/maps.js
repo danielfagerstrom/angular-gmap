@@ -1,5 +1,5 @@
 (function() {
-  var GMapMapController, app, bindMapAttributes, bindMapEvents, capitalize,
+  var GMapMapController, app, bindMapEvents, bindMapProperties, capitalize,
     __slice = [].slice;
 
   app = angular.module('gmap', []);
@@ -46,19 +46,19 @@
     return _results;
   };
 
-  bindMapAttributes = function(scope, attrs, $parse, attributesStr, googleObject) {
-    var bindAttr, _i, _len, _ref, _results;
-    _ref = attributesStr.split(' ');
+  bindMapProperties = function(scope, attrs, $parse, propertiesStr, googleObject) {
+    var bindProp, _i, _len, _ref, _results;
+    _ref = propertiesStr.split(' ');
     _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      bindAttr = _ref[_i];
-      if (bindAttr in attrs) {
-        _results.push((function(bindAttr, loopLock) {
+      bindProp = _ref[_i];
+      if (bindProp in attrs) {
+        _results.push((function(bindProp, loopLock) {
           var getter, gmEventName, gmGetterName, gmSetterName, setter;
-          gmGetterName = "get" + (capitalize(bindAttr));
-          gmSetterName = "set" + (capitalize(bindAttr));
-          gmEventName = "" + (bindAttr.toLowerCase()) + "_changed";
-          getter = $parse(attrs[bindAttr]);
+          gmGetterName = "get" + (capitalize(bindProp));
+          gmSetterName = "set" + (capitalize(bindProp));
+          gmEventName = "" + (bindProp.toLowerCase()) + "_changed";
+          getter = $parse(attrs[bindProp]);
           setter = getter.assign;
           scope.$watch(getter, function(value) {
             if (!loopLock) {
@@ -85,7 +85,7 @@
               }
             });
           }
-        })(bindAttr, false));
+        })(bindProp, false));
       }
     }
     return _results;
@@ -109,9 +109,9 @@
 
   app.directive('gmapMap', [
     '$parse', function($parse) {
-      var attributes, events;
+      var events, properties;
       events = 'bounds_changed center_changed click dblclick drag dragend ' + 'dragstart heading_changed idle maptypeid_changed mousemove mouseout ' + 'mouseover projection_changed resize rightclick tilesloaded tilt_changed ' + 'zoom_changed';
-      attributes = 'center heading mapTypeId tilt zoom';
+      properties = 'center heading mapTypeId tilt zoom';
       return {
         controller: GMapMapController,
         restrict: 'E',
@@ -143,7 +143,7 @@
             }
             controller.setMap(widget);
             bindMapEvents(scope, attrs, $parse, events, widget);
-            return bindMapAttributes(scope, attrs, $parse, attributes, widget);
+            return bindMapProperties(scope, attrs, $parse, properties, widget);
           };
         }
       };
@@ -152,9 +152,9 @@
 
   app.directive('gmapMarker', [
     '$parse', function($parse) {
-      var attributes, events;
+      var events, properties;
       events = 'animation_changed click clickable_changed cursor_changed ' + 'dblclick drag dragend draggable_changed dragstart flat_changed icon_changed ' + 'mousedown mouseout mouseover mouseup position_changed rightclick ' + 'shadow_changed shape_changed title_changed visible_changed zindex_changed';
-      attributes = 'animation clickable cursor draggable flat icon map position ' + 'shadow shape title visible zIndex';
+      properties = 'animation clickable cursor draggable flat icon map position ' + 'shadow shape title visible zIndex';
       return {
         require: '^?gmapMap',
         restrict: 'E',
@@ -176,7 +176,7 @@
             widget.setMap(map);
           }
           bindMapEvents(scope, attrs, $parse, events, widget);
-          return bindMapAttributes(scope, attrs, $parse, attributes, widget);
+          return bindMapProperties(scope, attrs, $parse, properties, widget);
         }
       };
     }
@@ -184,9 +184,9 @@
 
   app.directive('gmapInfoWindow', [
     '$parse', function($parse) {
-      var attributes, events;
+      var events, properties;
       events = 'closeclick content_change domready position_changed zindex_changed';
-      attributes = 'content position zindex';
+      properties = 'content position zindex';
       return {
         restrict: 'E',
         link: function(scope, elm, attrs) {
@@ -205,7 +205,7 @@
             scopeWidget.assign(scope, widget);
           }
           bindMapEvents(scope, attrs, $parse, events, widget);
-          bindMapAttributes(scope, attrs, $parse, attributes, widget);
+          bindMapProperties(scope, attrs, $parse, properties, widget);
           _open = widget.open;
           return widget.open = function() {
             var args;

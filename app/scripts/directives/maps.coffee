@@ -13,13 +13,13 @@ bindMapEvents = (scope, attrs, $parse, eventsStr, googleObject) ->
         getter(scope, $target: googleObject, $event: evt, $params:params)
         scope.$apply() unless scope.$$phase
 
-bindMapAttributes = (scope, attrs, $parse, attributesStr, googleObject) ->
-  for bindAttr in attributesStr.split(' ') when bindAttr of attrs
-    do (bindAttr, loopLock=false) ->
-      gmGetterName = "get#{capitalize bindAttr}"
-      gmSetterName = "set#{capitalize bindAttr}"
-      gmEventName = "#{bindAttr.toLowerCase()}_changed"
-      getter = $parse attrs[bindAttr]
+bindMapProperties = (scope, attrs, $parse, propertiesStr, googleObject) ->
+  for bindProp in propertiesStr.split(' ') when bindProp of attrs
+    do (bindProp, loopLock=false) ->
+      gmGetterName = "get#{capitalize bindProp}"
+      gmSetterName = "set#{capitalize bindProp}"
+      gmEventName = "#{bindProp.toLowerCase()}_changed"
+      getter = $parse attrs[bindProp]
       setter = getter.assign
       scope.$watch getter, (value) ->
         unless loopLock
@@ -47,7 +47,7 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
     'dragstart heading_changed idle maptypeid_changed mousemove mouseout ' +
     'mouseover projection_changed resize rightclick tilesloaded tilt_changed ' +
     'zoom_changed'
-  attributes = 'center heading mapTypeId tilt zoom'
+  properties = 'center heading mapTypeId tilt zoom'
   controller: GMapMapController
   restrict: 'E'
   compile: (tElm, tAttrs) ->
@@ -66,7 +66,7 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
       controller.setMap widget
       
       bindMapEvents scope, attrs, $parse, events, widget
-      bindMapAttributes scope, attrs, $parse, attributes, widget
+      bindMapProperties scope, attrs, $parse, properties, widget
 ]
 
 app.directive 'gmapMarker', ['$parse', ($parse) ->
@@ -74,7 +74,7 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
     'dblclick drag dragend draggable_changed dragstart flat_changed icon_changed ' +
     'mousedown mouseout mouseover mouseup position_changed rightclick ' +
     'shadow_changed shape_changed title_changed visible_changed zindex_changed'
-  attributes = 'animation clickable cursor draggable flat icon map position ' +
+  properties = 'animation clickable cursor draggable flat icon map position ' +
     'shadow shape title visible zIndex'
   require: '^?gmapMap'
   restrict: 'E'
@@ -90,12 +90,12 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
       widget.setMap map
     
     bindMapEvents scope, attrs, $parse, events, widget
-    bindMapAttributes scope, attrs, $parse, attributes, widget
+    bindMapProperties scope, attrs, $parse, properties, widget
 ]
 
 app.directive 'gmapInfoWindow', ['$parse', ($parse) ->
   events = 'closeclick content_change domready position_changed zindex_changed'
-  attributes = 'content position zindex'
+  properties = 'content position zindex'
   restrict: 'E'
   link: (scope, elm, attrs) ->
     elm.css 'display', 'none'
@@ -108,7 +108,7 @@ app.directive 'gmapInfoWindow', ['$parse', ($parse) ->
     scopeWidget.assign scope, widget if attrs.widget
     
     bindMapEvents scope, attrs, $parse, events, widget
-    bindMapAttributes scope, attrs, $parse, attributes, widget
+    bindMapProperties scope, attrs, $parse, properties, widget
 
     _open = widget.open
     widget.open = (args...) ->
