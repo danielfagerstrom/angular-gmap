@@ -50,11 +50,9 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
   mapAttributes = 'center zoom mapTypeId'
   controller: GMapMapController
   restrict: 'E'
-  replace: true
-  transclude: true
-  template: '<div><div></div><div ng-transclude></div></div>'
   compile: (tElm, tAttrs) ->
-    mapDiv = tElm.children().eq(0)
+    mapDiv = angular.element '<div></div>'
+    tElm.prepend mapDiv
     for attr in ['class', 'id', 'style'] when attr of tAttrs
       mapDiv.attr attr, tAttrs[attr]
       tElm.removeAttr attr

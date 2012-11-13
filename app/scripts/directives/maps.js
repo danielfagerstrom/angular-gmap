@@ -115,12 +115,10 @@
       return {
         controller: GMapMapController,
         restrict: 'E',
-        replace: true,
-        transclude: true,
-        template: '<div><div></div><div ng-transclude></div></div>',
         compile: function(tElm, tAttrs) {
           var attr, mapDiv, _i, _len, _ref;
-          mapDiv = tElm.children().eq(0);
+          mapDiv = angular.element('<div></div>');
+          tElm.prepend(mapDiv);
           _ref = ['class', 'id', 'style'];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             attr = _ref[_i];
