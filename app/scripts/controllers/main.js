@@ -10,11 +10,19 @@
     $scope.panTo = function(location) {
       return $scope.myMap.panTo(location);
     };
-    return $scope.openMarkerInfo = function(marker) {
-      $scope.currentMarkerLat = marker.getPosition().lat();
-      $scope.currentMarkerLng = marker.getPosition().lng();
+    $scope.openMarkerInfo = function(marker, location) {
+      $scope.currentMarkerLat = location.lat();
+      $scope.currentMarkerLng = location.lng();
       return $scope.myInfoWindow.open($scope.myMap, marker);
     };
+    $scope.mLocation = new google.maps.LatLng(35.784, -78.670);
+    $scope.$watch('mLocation', function() {
+      return console.log('mLocation');
+    });
+    $scope.myMarker = null;
+    return $scope.$watch('myMarker', function(newVal, oldVal) {
+      return console.log(newVal, oldVal);
+    });
   });
 
 }).call(this);

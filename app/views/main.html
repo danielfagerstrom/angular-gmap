@@ -19,6 +19,7 @@
         </li>
       </ul>
     </div>
+    <div>{{mLocation | json}}</div>
     <gmap-info-window widget="myInfoWindow">
       <div>
         <h1>Marker</h1>
@@ -28,9 +29,10 @@
     <gmap-map id="map_canvas" class="map span8" options="mapOptions" widget="myMap"
               center="currentMapCenter" zoom="zoom" map-type-id="'roadmap'"
               click="addMarker($event)">
+      <gmap-marker widget="myMarker" position="mLocation" draggable="true"></gmap-marker>
       <gmap-marker ng-repeat="location in locations"
                    position="location"
-                   click="openMarkerInfo($target)"></gmap-marker>
+                   click="openMarkerInfo($target, location)"></gmap-marker>
     </gmap-map>
   </div>
 </div>

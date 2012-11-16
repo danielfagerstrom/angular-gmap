@@ -8,7 +8,13 @@ angular.module('angularGmapApp')
       $scope.locations.push evt.latLng
     $scope.panTo = (location) ->
       $scope.myMap.panTo location
-    $scope.openMarkerInfo = (marker) ->
-      $scope.currentMarkerLat = marker.getPosition().lat()
-      $scope.currentMarkerLng = marker.getPosition().lng()
+    $scope.openMarkerInfo = (marker, location) ->
+      $scope.currentMarkerLat = location.lat()
+      $scope.currentMarkerLng = location.lng()
       $scope.myInfoWindow.open $scope.myMap, marker
+
+    $scope.mLocation = new google.maps.LatLng(35.784, -78.670)
+    $scope.$watch 'mLocation', -> console.log 'mLocation'
+    $scope.myMarker = null
+    $scope.$watch 'myMarker', (newVal, oldVal) -> console.log newVal, oldVal
+    
