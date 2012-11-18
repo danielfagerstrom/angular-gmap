@@ -11,16 +11,16 @@ files = [
   JASMINE_ADAPTER,
   'app/scripts/vendor/angular.js',
   'test/vendor/angular-mocks.js',
-  'app/scripts/*.js',
-  'app/scripts/**/*.js',
-  'test/mock/**/*.js',
-  'test/spec/**/*.js'
+  'http://maps.googleapis.com/maps/api/js?sensor=false',
+  'temp/scripts/*.js',
+  'temp/scripts/**/*.js',
+  'temp/spec/**/*.js'
 ];
 
 
 // list of files to exclude
 exclude = [
-  
+
 ];
 
 
