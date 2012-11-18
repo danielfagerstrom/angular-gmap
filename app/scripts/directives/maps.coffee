@@ -16,27 +16,26 @@ bindMapEvents = (scope, attrs, $parse, eventsStr, googleObject) ->
 bindMapProperties = (scope, attrs, $parse, propertiesStr, googleObject) ->
   for bindProp in propertiesStr.split(' ') when bindProp of attrs
     do (bindProp, loopLock=false) ->
+      locked = (fn) ->
+        unless loopLock
+          try
+            loopLock = true
+            fn()
+          finally
+            loopLock = false
       gmGetterName = "get#{capitalize bindProp}"
       gmSetterName = "set#{capitalize bindProp}"
       gmEventName = "#{bindProp.toLowerCase()}_changed"
       getter = $parse attrs[bindProp]
       setter = getter.assign
       scope.$watch getter, (value) ->
-        unless loopLock
-          try
-            loopLock = true
-            googleObject[gmSetterName] value
-          finally
-            loopLock = false
+        locked ->
+          googleObject[gmSetterName] value
       if setter?
         google.maps.event.addListener googleObject, gmEventName, ->
-          unless loopLock
-            try
-              loopLock = true
-              setter scope, googleObject[gmGetterName]()
-              scope.$apply() unless scope.$$phase
-            finally
-              loopLock = false
+          locked ->
+            setter scope, googleObject[gmGetterName]()
+            scope.$apply() unless scope.$$phase
 
 class GMapMapController
   constructor: ($q) ->
