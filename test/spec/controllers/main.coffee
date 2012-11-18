@@ -1,5 +1,3 @@
-'use strict'
-
 describe 'Controller: MainCtrl', () ->
 
   # load the controller's module
@@ -10,10 +8,10 @@ describe 'Controller: MainCtrl', () ->
 
   # Initialize the controller and a mock scope
   beforeEach inject ($controller) ->
-    scope = {}
+    scope = {$watch: ->}
     MainCtrl = $controller 'MainCtrl', {
       $scope: scope
     }
 
-  it 'should attach a list of awesomeThings to the scope', () ->
-    expect(scope.awesomeThings.length).toBe 3;
+  it 'should attach a value to zoom', () ->
+    expect(scope.zoom).toBe 15
