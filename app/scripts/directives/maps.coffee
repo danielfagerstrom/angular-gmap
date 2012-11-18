@@ -32,10 +32,14 @@ bindMapProperties = (scope, attrs, $parse, propertiesStr, googleObject) ->
         locked ->
           googleObject[gmSetterName] value
       if setter?
+        unless getter scope
+          locked ->
+            setter scope, googleObject[gmGetterName]()
+            scope.$digest() unless scope.$$phase
         google.maps.event.addListener googleObject, gmEventName, ->
           locked ->
             setter scope, googleObject[gmGetterName]()
-            scope.$apply() unless scope.$$phase
+            scope.$digest() unless scope.$$phase
 
 class GMapMapController
   constructor: ($q) ->
