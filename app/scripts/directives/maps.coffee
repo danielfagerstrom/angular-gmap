@@ -97,6 +97,11 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
     if controller
       controller.getMap().then (map) ->
         widget.setMap map
+        if attrs.map
+          mapAttr = $parse attrs.map
+          if mapAttr.setter
+            scope.$apply ->
+              mapAttr.setter scope, map
 
     bindMapEvents scope, attrs, $parse, events, widget
     bindMapProperties scope, attrs, $parse, properties, widget
