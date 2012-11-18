@@ -47,7 +47,7 @@ module.exports = function( grunt ) {
     // default watch configuration
     watch: {
       coffee: {
-        files: 'app/scripts/**/*.coffee',
+          files: ['app/scripts/**/*.coffee', 'test/spec/**/*.coffee'],
         tasks: 'coffee reload'
       },
       compass: {
