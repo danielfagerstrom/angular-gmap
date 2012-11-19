@@ -149,3 +149,24 @@ app.directive 'gmapInfoWindow', ['$parse', ($parse) ->
     widget.open = (args...) ->
       _open.call widget, args...
 ]
+
+app.directive 'gmapStyledMarker', ['$parse', ($parse) ->
+  events = 'animation_changed click clickable_changed cursor_changed ' +
+    'dblclick drag dragend draggable_changed dragstart flat_changed icon_changed ' +
+    'mousedown mouseout mouseover mouseup position_changed rightclick ' +
+    'shadow_changed shape_changed title_changed visible_changed zindex_changed'
+  properties = 'animation clickable cursor draggable flat icon map position ' +
+    'shadow shape title visible zIndex'
+  require: '^?gmapMap'
+  restrict: 'E'
+  link: (scope, elm, attrs, controller) ->
+    h = new Helper $parse, scope, elm, attrs, controller
+    opts = h.getOpts()
+    widget = h.createOrGetWidget ->
+      new StyledMarker opts
+    h.getMapFromController widget
+
+    h.bindMapEvents events, widget
+    h.bindMapProperties properties, widget
+]
+
