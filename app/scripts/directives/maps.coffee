@@ -60,11 +60,14 @@ setAttrValue = (attrName, value, scope, attrs, $parse) ->
   if attrs[attrName]
     $parse(attrs[attrName]).assign scope, value
 
+createOrGetAttrValue = (attrName, scope, attrs, $parse, factoryFn) ->
+  value = getAttrValue attrName, scope, attrs, $parse
+  value ?= factoryFn()
+  setAttrValue attrName, value, scope, attrs, $parse
+  value
+
 createOrGetWidget = (scope, attrs, $parse, factoryFn) ->
-  widget = getAttrValue 'widget', scope, attrs, $parse
-  widget ?= factoryFn()
-  setAttrValue 'widget', widget, scope, attrs, $parse
-  widget
+  createOrGetAttrValue('widget', scope, attrs, $parse, factoryFn)
 
 class GMapMapController
   constructor: ($q) ->
