@@ -26,22 +26,26 @@ class Helper
               fn()
             finally
               loopLock = false
-        gmGetterName = "get#{capitalize bindProp}"
-        gmSetterName = "set#{capitalize bindProp}"
+        gmGet = (googleObject, propName) ->
+          gmGetterName = "get#{capitalize bindProp}"
+          googleObject[gmGetterName]()
+        gmSet = (googleObject, propName, value) ->
+          gmSetterName = "set#{capitalize bindProp}"
+          googleObject[gmSetterName] value
         gmEventName = "#{bindProp.toLowerCase()}_changed"
         getter = @$parse @attrs[bindProp]
         setter = getter.assign
         @scope.$watch getter, (value) ->
           locked ->
-            googleObject[gmSetterName] value
+            gmSet googleObject, bindProp, value
         if setter?
           unless getter @scope
             locked =>
-              setter @scope, googleObject[gmGetterName]()
+              setter @scope, gmGet(googleObject, bindProp)
               @scope.$digest() unless @scope.$$phase
           google.maps.event.addListener googleObject, gmEventName, =>
             locked =>
-              setter @scope, googleObject[gmGetterName]()
+              setter @scope, gmGet(googleObject, bindProp)
               @scope.$digest() unless @scope.$$phase
 
   getOpts: ->
