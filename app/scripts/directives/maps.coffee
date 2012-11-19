@@ -3,71 +3,74 @@ app = angular.module 'gmap', []
 capitalize = (str) ->
   str[0].toUpperCase() + str[1...]
 
-bindMapEvents = (scope, attrs, $parse, eventsStr, googleObject) ->
-  normalizedMapEvents = (attrs.$normalize(mapEvent) for mapEvent in eventsStr.split(' '))
-  for normalizedMapEvent in normalizedMapEvents when normalizedMapEvent of attrs
-    do (normalizedMapEvent) ->
-      gmEventName = attrs.$attr[normalizedMapEvent]
-      getter = $parse attrs[normalizedMapEvent]
-      google.maps.event.addListener googleObject, gmEventName, (evt, params...) ->
-        getter(scope, $target: googleObject, $event: evt, $params:params)
-        scope.$apply() unless scope.$$phase
+class Helper
+  constructor: (@$parse, @scope, @elm, @attrs, @controller) ->
+    
+  bindMapEvents: (eventsStr, googleObject) ->
+    normalizedMapEvents = (@attrs.$normalize(mapEvent) for mapEvent in eventsStr.split(' '))
+    for normalizedMapEvent in normalizedMapEvents when normalizedMapEvent of @attrs
+      do (normalizedMapEvent) =>
+        gmEventName = @attrs.$attr[normalizedMapEvent]
+        getter = @$parse @attrs[normalizedMapEvent]
+        google.maps.event.addListener googleObject, gmEventName, (evt, params...) =>
+          getter(@scope, $target: googleObject, $event: evt, $params: params)
+          @scope.$apply() unless @scope.$$phase
 
-bindMapProperties = (scope, attrs, $parse, propertiesStr, googleObject) ->
-  for bindProp in propertiesStr.split(' ') when bindProp of attrs
-    do (bindProp, loopLock=false) ->
-      locked = (fn) ->
-        unless loopLock
-          try
-            loopLock = true
-            fn()
-          finally
-            loopLock = false
-      gmGetterName = "get#{capitalize bindProp}"
-      gmSetterName = "set#{capitalize bindProp}"
-      gmEventName = "#{bindProp.toLowerCase()}_changed"
-      getter = $parse attrs[bindProp]
-      setter = getter.assign
-      scope.$watch getter, (value) ->
-        locked ->
-          googleObject[gmSetterName] value
-      if setter?
-        unless getter scope
+  bindMapProperties: (propertiesStr, googleObject) ->
+    for bindProp in propertiesStr.split(' ') when bindProp of @attrs
+      do (bindProp, loopLock=false) =>
+        locked = (fn) ->
+          unless loopLock
+            try
+              loopLock = true
+              fn()
+            finally
+              loopLock = false
+        gmGetterName = "get#{capitalize bindProp}"
+        gmSetterName = "set#{capitalize bindProp}"
+        gmEventName = "#{bindProp.toLowerCase()}_changed"
+        getter = @$parse @attrs[bindProp]
+        setter = getter.assign
+        @scope.$watch getter, (value) ->
           locked ->
-            setter scope, googleObject[gmGetterName]()
-            scope.$digest() unless scope.$$phase
-        google.maps.event.addListener googleObject, gmEventName, ->
-          locked ->
-            setter scope, googleObject[gmGetterName]()
-            scope.$digest() unless scope.$$phase
+            googleObject[gmSetterName] value
+        if setter?
+          unless getter @scope
+            locked =>
+              setter @scope, googleObject[gmGetterName]()
+              @scope.$digest() unless @scope.$$phase
+          google.maps.event.addListener googleObject, gmEventName, =>
+            locked =>
+              setter @scope, googleObject[gmGetterName]()
+              @scope.$digest() unless @scope.$$phase
 
-getMapFromController = (scope, attrs, $parse, controller, widget) ->
-  if controller
-    controller.getMap().then (map) ->
-      widget.setMap map
-      if attrs.map
-        mapAttr = $parse attrs.map
-        if mapAttr.setter
-          scope.$apply ->
-            mapAttr.setter scope, map
+  getMapFromController: (widget) ->
+    if @controller
+      @controller.getMap().then (map) =>
+        widget.setMap map
+        if @attrs.map
+          mapAttr = @$parse @attrs.map
+          if mapAttr.setter
+            @scope.$apply ->
+              mapAttr.setter @scope, map
 
-getAttrValue = (attrName, scope, attrs, $parse) ->
-  if attrs[attrName]
-    value = $parse(attrs[attrName])(scope)
-  value
+  getAttrValue: (attrName) ->
+    if @attrs[attrName]
+      value = @$parse(@attrs[attrName])(@scope)
+    value
 
-setAttrValue = (attrName, value, scope, attrs, $parse) ->
-  if attrs[attrName]
-    $parse(attrs[attrName]).assign scope, value
+  setAttrValue: (attrName, value) ->
+    if @attrs[attrName]
+      @$parse(@attrs[attrName]).assign @scope, value
 
-createOrGetAttrValue = (attrName, scope, attrs, $parse, factoryFn) ->
-  value = getAttrValue attrName, scope, attrs, $parse
-  value ?= factoryFn()
-  setAttrValue attrName, value, scope, attrs, $parse
-  value
+  createOrGetAttrValue: (attrName, factoryFn) ->
+    value = @getAttrValue attrName
+    value ?= factoryFn()
+    @setAttrValue attrName, value
+    value
 
-createOrGetWidget = (scope, attrs, $parse, factoryFn) ->
-  createOrGetAttrValue('widget', scope, attrs, $parse, factoryFn)
+  createOrGetWidget: (factoryFn) ->
+    @createOrGetAttrValue 'widget', factoryFn
 
 class GMapMapController
   constructor: ($q) ->
@@ -94,13 +97,14 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
       mapDiv.attr attr, tAttrs[attr]
       tElm.removeAttr attr
     (scope, elm, attrs, controller) ->
+      h = new Helper $parse, scope, elm, attrs, controller
       opts = angular.extend {}, scope.$eval(attrs.options)
-      widget = createOrGetWidget scope, attrs, $parse, ->
+      widget = h.createOrGetWidget ->
         new google.maps.Map elm.children()[0], opts
       controller.setMap widget
       
-      bindMapEvents scope, attrs, $parse, events, widget
-      bindMapProperties scope, attrs, $parse, properties, widget
+      h.bindMapEvents events, widget
+      h.bindMapProperties properties, widget
 ]
 
 app.directive 'gmapMarker', ['$parse', ($parse) ->
@@ -113,13 +117,14 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
   require: '^?gmapMap'
   restrict: 'E'
   link: (scope, elm, attrs, controller) ->
+    h = new Helper $parse, scope, elm, attrs, controller
     opts = angular.extend {}, scope.$eval(attrs.options)
-    widget = createOrGetWidget scope, attrs, $parse, ->
+    widget = h.createOrGetWidget ->
       new google.maps.Marker opts
-    getMapFromController scope, attrs, $parse, controller, widget
+    h.getMapFromController widget
 
-    bindMapEvents scope, attrs, $parse, events, widget
-    bindMapProperties scope, attrs, $parse, properties, widget
+    h.bindMapEvents events, widget
+    h.bindMapProperties properties, widget
 ]
 
 app.directive 'gmapInfoWindow', ['$parse', ($parse) ->
@@ -127,14 +132,15 @@ app.directive 'gmapInfoWindow', ['$parse', ($parse) ->
   properties = 'content position zindex'
   restrict: 'E'
   link: (scope, elm, attrs) ->
+    h = new Helper $parse, scope, elm, attrs
     elm.css 'display', 'none'
     opts = angular.extend {}, scope.$eval(attrs.options)
     opts.content = elm.children()[0]
-    widget = createOrGetWidget scope, attrs, $parse, ->
+    widget = h.createOrGetWidget ->
       new google.maps.InfoWindow opts
     
-    bindMapEvents scope, attrs, $parse, events, widget
-    bindMapProperties scope, attrs, $parse, properties, widget
+    h.bindMapEvents events, widget
+    h.bindMapProperties properties, widget
 
     _open = widget.open
     widget.open = (args...) ->
