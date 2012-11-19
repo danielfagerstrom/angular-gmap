@@ -44,6 +44,9 @@ class Helper
               setter @scope, googleObject[gmGetterName]()
               @scope.$digest() unless @scope.$$phase
 
+  getOpts: ->
+    angular.extend {}, @scope.$eval(@attrs.options)
+
   getMapFromController: (widget) ->
     if @controller
       @controller.getMap().then (map) =>
@@ -98,7 +101,7 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
       tElm.removeAttr attr
     (scope, elm, attrs, controller) ->
       h = new Helper $parse, scope, elm, attrs, controller
-      opts = angular.extend {}, scope.$eval(attrs.options)
+      opts = h.getOpts()
       widget = h.createOrGetWidget ->
         new google.maps.Map elm.children()[0], opts
       controller.setMap widget
@@ -118,7 +121,7 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
   restrict: 'E'
   link: (scope, elm, attrs, controller) ->
     h = new Helper $parse, scope, elm, attrs, controller
-    opts = angular.extend {}, scope.$eval(attrs.options)
+    opts = h.getOpts()
     widget = h.createOrGetWidget ->
       new google.maps.Marker opts
     h.getMapFromController widget
@@ -134,7 +137,7 @@ app.directive 'gmapInfoWindow', ['$parse', ($parse) ->
   link: (scope, elm, attrs) ->
     h = new Helper $parse, scope, elm, attrs
     elm.css 'display', 'none'
-    opts = angular.extend {}, scope.$eval(attrs.options)
+    opts = h.getOpts()
     opts.content = elm.children()[0]
     widget = h.createOrGetWidget ->
       new google.maps.InfoWindow opts
