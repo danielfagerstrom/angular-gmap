@@ -27,11 +27,17 @@ class Helper
             finally
               loopLock = false
         gmGet = (googleObject, propName) ->
-          gmGetterName = "get#{capitalize bindProp}"
-          googleObject[gmGetterName]()
+          gmGetterName = "get#{capitalize propName}"
+          if googleObject[gmGetterName]
+            googleObject[gmGetterName]()
+          else
+            googleObject.get propName
         gmSet = (googleObject, propName, value) ->
-          gmSetterName = "set#{capitalize bindProp}"
-          googleObject[gmSetterName] value
+          gmSetterName = "set#{capitalize propName}"
+          if googleObject[gmSetterName]
+            googleObject[gmSetterName] value
+          else
+            googleObject.set propName, value
         gmEventName = "#{bindProp.toLowerCase()}_changed"
         getter = @$parse @attrs[bindProp]
         setter = getter.assign
@@ -171,7 +177,7 @@ app.directive 'gmapStyledMarker', ['$parse', ($parse) ->
     styledIconTypeName = (h.getAttrValue('iconType') or '').toUpperCase()
     opts.styleIcon = h.createOrGetAttrValue 'styleIcon', ->
       opts.styleIcon or new StyledIcon(StyledIconTypes[styledIconTypeName], {})
-    #h.bindMapProperties styleProperties, opts.styleIcon
+    h.bindMapProperties styleProperties, opts.styleIcon
 
     widget = h.createOrGetWidget ->
       new StyledMarker opts
