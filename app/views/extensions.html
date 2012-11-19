@@ -29,7 +29,7 @@
     <gmap-map id="map_canvas" class="map span8" options="mapOptions" widget="myMap"
               center="currentMapCenter" zoom="zoom" map-type-id="'roadmap'"
               click="addMarker($event)">
-      <gmap-styled-marker widget="myMarker" icon_type="'marker'"
+      <gmap-styled-marker widget="myMarker" icon_type="'marker'" color="'ffff00'" text="'1'"
                           position="mLocation" draggable="true"></gmap-marker>
       <gmap-marker ng-repeat="location in locations"
                    position="location"
