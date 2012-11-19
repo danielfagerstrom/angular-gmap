@@ -51,6 +51,23 @@ getMapFromController = (scope, attrs, $parse, controller, widget) ->
           scope.$apply ->
             mapAttr.setter scope, map
 
+getWidgetFromAttr = (scope, attrs, $parse) ->
+  if attrs.widget
+    scopeWidget = $parse attrs.widget
+    widget = scopeWidget scope
+  widget
+
+setWidgetToAttr = (scope, attrs, $parse, widget) ->
+  if attrs.widget
+    scopeWidget = $parse attrs.widget
+    scopeWidget.assign scope, widget
+
+createOrGetWidget = (scope, attrs, $parse, factoryFn) ->
+  widget = getWidgetFromAttr scope, attrs, $parse
+  widget ?= factoryFn()
+  setWidgetToAttr scope, attrs, $parse, widget
+  widget
+
 class GMapMapController
   constructor: ($q) ->
     @map = $q.defer()
@@ -77,11 +94,8 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
       tElm.removeAttr attr
     (scope, elm, attrs, controller) ->
       opts = angular.extend {}, scope.$eval(attrs.options)
-      if attrs.widget
-        scopeWidget = $parse attrs.widget
-        widget = scopeWidget scope
-      widget ?= new google.maps.Map elm.children()[0], opts
-      scopeWidget.assign scope, widget if attrs.widget
+      widget = createOrGetWidget scope, attrs, $parse, ->
+        new google.maps.Map elm.children()[0], opts
       controller.setMap widget
       
       bindMapEvents scope, attrs, $parse, events, widget
@@ -99,11 +113,8 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
   restrict: 'E'
   link: (scope, elm, attrs, controller) ->
     opts = angular.extend {}, scope.$eval(attrs.options)
-    if attrs.widget
-      scopeWidget = $parse attrs.widget
-      widget = scopeWidget scope
-    widget ?= new google.maps.Marker opts
-    scopeWidget.assign scope, widget if attrs.widget
+    widget = createOrGetWidget scope, attrs, $parse, ->
+      new google.maps.Marker opts
     getMapFromController scope, attrs, $parse, controller, widget
 
     bindMapEvents scope, attrs, $parse, events, widget
@@ -118,11 +129,8 @@ app.directive 'gmapInfoWindow', ['$parse', ($parse) ->
     elm.css 'display', 'none'
     opts = angular.extend {}, scope.$eval(attrs.options)
     opts.content = elm.children()[0]
-    if attrs.widget
-      scopeWidget = $parse attrs.widget
-      widget = scopeWidget scope
-    widget ?= new google.maps.InfoWindow opts
-    scopeWidget.assign scope, widget if attrs.widget
+    widget = createOrGetWidget scope, attrs, $parse, ->
+      new google.maps.InfoWindow opts
     
     bindMapEvents scope, attrs, $parse, events, widget
     bindMapProperties scope, attrs, $parse, properties, widget
