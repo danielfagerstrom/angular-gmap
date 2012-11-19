@@ -41,6 +41,16 @@ bindMapProperties = (scope, attrs, $parse, propertiesStr, googleObject) ->
             setter scope, googleObject[gmGetterName]()
             scope.$digest() unless scope.$$phase
 
+getMapFromController = (scope, attrs, $parse, controller, widget) ->
+  if controller
+    controller.getMap().then (map) ->
+      widget.setMap map
+      if attrs.map
+        mapAttr = $parse attrs.map
+        if mapAttr.setter
+          scope.$apply ->
+            mapAttr.setter scope, map
+
 class GMapMapController
   constructor: ($q) ->
     @map = $q.defer()
@@ -94,14 +104,7 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
       widget = scopeWidget scope
     widget ?= new google.maps.Marker opts
     scopeWidget.assign scope, widget if attrs.widget
-    if controller
-      controller.getMap().then (map) ->
-        widget.setMap map
-        if attrs.map
-          mapAttr = $parse attrs.map
-          if mapAttr.setter
-            scope.$apply ->
-              mapAttr.setter scope, map
+    getMapFromController scope, attrs, $parse, controller, widget
 
     bindMapEvents scope, attrs, $parse, events, widget
     bindMapProperties scope, attrs, $parse, properties, widget
