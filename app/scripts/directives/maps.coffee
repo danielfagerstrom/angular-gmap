@@ -51,21 +51,19 @@ getMapFromController = (scope, attrs, $parse, controller, widget) ->
           scope.$apply ->
             mapAttr.setter scope, map
 
-getWidgetFromAttr = (scope, attrs, $parse) ->
-  if attrs.widget
-    scopeWidget = $parse attrs.widget
-    widget = scopeWidget scope
-  widget
+getAttrValue = (attrName, scope, attrs, $parse) ->
+  if attrs[attrName]
+    value = $parse(attrs[attrName])(scope)
+  value
 
-setWidgetToAttr = (scope, attrs, $parse, widget) ->
-  if attrs.widget
-    scopeWidget = $parse attrs.widget
-    scopeWidget.assign scope, widget
+setAttrValue = (attrName, value, scope, attrs, $parse) ->
+  if attrs[attrName]
+    $parse(attrs[attrName]).assign scope, value
 
 createOrGetWidget = (scope, attrs, $parse, factoryFn) ->
-  widget = getWidgetFromAttr scope, attrs, $parse
+  widget = getAttrValue 'widget', scope, attrs, $parse
   widget ?= factoryFn()
-  setWidgetToAttr scope, attrs, $parse, widget
+  setAttrValue 'widget', widget, scope, attrs, $parse
   widget
 
 class GMapMapController
