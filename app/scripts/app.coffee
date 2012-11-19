@@ -6,6 +6,9 @@ angular.module('angularGmapApp', ['gmap'])
       .when '/',
         templateUrl: 'views/main.html'
         controller: 'MainCtrl'
+      .when '/extensions',
+        templateUrl: 'views/extensions.html'
+        controller: 'ExtensionsCtrl'
       .otherwise
         redirectTo: '/'
   ]

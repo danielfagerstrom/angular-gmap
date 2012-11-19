@@ -1,0 +1,39 @@
+<style>
+.map {
+  height: 400px;
+  width: 600px;
+}
+</style>
+<div class="page-header">
+  <h1>angular-gmap example</h1>
+</div>
+<div class="well">
+  <div class="row">
+    <div class="span3">
+      <h4>Click to add a marker!</h4>
+      <label>Zoom Level</label>
+      <input class="input-mini" type="number" ng-model="zoom"/>
+      <ul>
+        <li ng-repeat="location in locations">
+          <a class="btn" ng-click="panTo(location)">Pan to Marker {{$index}}</a>
+        </li>
+      </ul>
+    </div>
+    <div>{{mLocation | json}}</div>
+    <gmap-info-window widget="myInfoWindow">
+      <div>
+        <h1>Marker</h1>
+        Lat: {{currentMarkerLat}}, Lng: {{currentMarkerLng}}
+      </div>
+    </gmap-info-window>
+    <gmap-map id="map_canvas" class="map span8" options="mapOptions" widget="myMap"
+              center="currentMapCenter" zoom="zoom" map-type-id="'roadmap'"
+              click="addMarker($event)">
+      <gmap-styled-marker widget="myMarker" options="mOptions" position="mLocation" draggable="true"></gmap-marker>
+      <gmap-marker ng-repeat="location in locations"
+                   position="location"
+                   click="openMarkerInfo($target, location)"></gmap-marker>
+    </gmap-map>
+  </div>
+</div>
+
