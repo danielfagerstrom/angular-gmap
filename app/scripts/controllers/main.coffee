@@ -1,5 +1,5 @@
 angular.module('angularGmapApp')
-  .controller 'MainCtrl', ($scope) ->
+  .controller 'MainCtrl', ($scope, $log) ->
     $scope.currentMapCenter = new google.maps.LatLng(35.784, -78.670)
     $scope.zoom = 15
 
@@ -14,7 +14,7 @@ angular.module('angularGmapApp')
       $scope.myInfoWindow.open $scope.myMap, marker
 
     $scope.mLocation = new google.maps.LatLng(35.784, -78.670)
-    $scope.$watch 'mLocation', -> console.log 'mLocation'
+    $scope.$watch 'mLocation', -> $log.log 'mLocation'
     $scope.myMarker = null
-    $scope.$watch 'myMarker', (newVal, oldVal) -> console.log newVal, oldVal
+    $scope.$watch 'myMarker', (newVal, oldVal) -> $log.log newVal, oldVal
     

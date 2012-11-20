@@ -1,5 +1,5 @@
 angular.module('angularGmapApp')
-  .controller 'ExtensionsCtrl', ($scope) ->
+  .controller 'ExtensionsCtrl', ($scope, $log) ->
     $scope.currentMapCenter = new google.maps.LatLng(35.784, -78.670)
     $scope.zoom = 15
 
@@ -14,9 +14,9 @@ angular.module('angularGmapApp')
       $scope.myInfoWindow.open $scope.myMap, marker
 
     $scope.mLocation = new google.maps.LatLng(35.784, -78.670)
-    $scope.mOptions =
-      styleIcon: new StyledIcon(StyledIconTypes.BUBBLE, {color:"ff0000", text:"I'm a marker!"})
-    $scope.$watch 'mLocation', -> console.log 'mLocation'
+    $scope.mText = "I'm a movable marker!"
+    $scope.$watch 'mLocation', -> $log.log 'mLocation'
     $scope.myMarker = null
-    $scope.$watch 'myMarker', (newVal, oldVal) -> console.log newVal, oldVal
+    $scope.$watch 'myMarker', (newVal, oldVal) -> $log.log newVal, oldVal
+    $scope.textChange = -> $log.log 'text_change'
     
