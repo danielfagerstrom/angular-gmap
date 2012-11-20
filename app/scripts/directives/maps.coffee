@@ -167,6 +167,7 @@ app.directive 'gmapStyledMarker', ['$parse', ($parse) ->
     'shadow_changed shape_changed title_changed visible_changed zindex_changed'
   properties = 'animation clickable cursor draggable flat icon map position ' +
     'shadow shape title visible zIndex'
+  styleEvents = 'text_changed color_changed fore_changed starcolor_changed'
   styleProperties = 'text color fore starcolor'
   require: '^?gmapMap'
   restrict: 'E'
@@ -174,9 +175,10 @@ app.directive 'gmapStyledMarker', ['$parse', ($parse) ->
     h = new Helper $parse, scope, elm, attrs, controller
     opts = h.getOpts()
     
-    styledIconTypeName = (h.getAttrValue('iconType') or '').toUpperCase()
+    styledIconTypeName = (h.getAttrValue('iconType') or 'marker').toUpperCase()
     opts.styleIcon = h.createOrGetAttrValue 'styleIcon', ->
       opts.styleIcon or new StyledIcon(StyledIconTypes[styledIconTypeName], {})
+    h.bindMapEvents styleEvents, opts.styleIcon
     h.bindMapProperties styleProperties, opts.styleIcon
 
     widget = h.createOrGetWidget ->
