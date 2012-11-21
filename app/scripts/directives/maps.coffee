@@ -189,3 +189,26 @@ app.directive 'gmapStyledMarker', ['$parse', ($parse) ->
     h.bindMapProperties properties, widget
 ]
 
+app.directive 'gmapInfoBubble', ['$parse', ($parse) ->
+  events = 'closeclick content_change domready position_changed zindex_changed'
+  properties = 'content position zIndex ' +
+    'backgroundColor borderColor borderRadius borderWidth padding arrowPosition ' +
+    'disableAutoPan disableAnimation minWidth maxWidth minHeight maxHeight ' +
+    'shadowStyle arrowSize arrowStyle arrowPosition' +
+    'backgroundClassName tabClassName'
+  restrict: 'E'
+  link: (scope, elm, attrs) ->
+    h = new Helper $parse, scope, elm, attrs
+    elm.css 'display', 'none'
+    opts = h.getOpts()
+    opts.content = elm.children()[0]
+    widget = h.createOrGetWidget ->
+      new InfoBubble opts
+    
+    h.bindMapEvents events, widget
+    h.bindMapProperties properties, widget
+
+    _open = widget.open
+    widget.open = (args...) ->
+      _open.call widget, args...
+]
