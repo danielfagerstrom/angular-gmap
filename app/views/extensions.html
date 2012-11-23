@@ -22,21 +22,26 @@
         </li>
       </ul>
     </div>
-    <gmap-info-window widget="myInfoWindow">
+    <gmap-info-bubble widget="myInfoWindow" background_color="'ffffdd'">
       <div>
         <h1>Marker</h1>
         Lat: {{currentMarkerLat}}, Lng: {{currentMarkerLng}}
       </div>
-    </gmap-info-window>
+    </gmap-info-bubble>
     <gmap-map id="map_canvas" class="map span8" options="mapOptions" widget="myMap"
               center="currentMapCenter" zoom="zoom" map-type-id="'roadmap'"
               click="addMarker($event)">
-      <gmap-styled-marker widget="myMarker" icon_type="'bubble'" color="'ffff00'" text="mText"
+      <!--
+      <gmap-styled-marker icon_type="'bubble'" color="'ffff00'" text="mText"
                           position="mLocation" draggable="true"
                           text_changed="textChange()"></gmap-marker>
       <gmap-styled-marker ng-repeat="location in locations"
-                          position="location"
+                          position="location" color="'0000ff'" 
                           click="openMarkerInfo($target, location)"></gmap-marker>
+      -->
+      <gmap-styled-marker options="mOpts"></gmap-marker>
+      <gmap-styled-marker ng-repeat="location in locations"
+                          options="mOpts2(location)"></gmap-marker>
     </gmap-map>
   </div>
 </div>

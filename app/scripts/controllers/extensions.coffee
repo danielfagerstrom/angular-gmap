@@ -14,9 +14,9 @@ angular.module('angularGmapApp')
       $scope.myInfoWindow.open $scope.myMap, marker
 
     $scope.mLocation = new google.maps.LatLng(35.784, -78.670)
+    $scope.mStyleIcon = new StyledIcon(StyledIconTypes.BUBBLE, color: 'ffff00', text: "mText")
+    $scope.mOpts = position: $scope.mLocation, styleIcon: $scope.mStyleIcon
+    $scope.mStyleIcon2 = new StyledIcon(StyledIconTypes.MARKER, color: 'ff0000', text: "m")
+    $scope.mOpts2 = (location) ->
+      position: location, styleIcon: new StyledIcon(StyledIconTypes.MARKER, color: 'ff0000', text: "m")
     $scope.mText = "I'm a movable marker!"
-    $scope.$watch 'mLocation', -> $log.log 'mLocation'
-    $scope.myMarker = null
-    $scope.$watch 'myMarker', (newVal, oldVal) -> $log.log newVal, oldVal
-    $scope.textChange = -> $log.log 'text_change'
-    
