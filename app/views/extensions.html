@@ -39,9 +39,11 @@
                           position="location" color="'0000ff'" 
                           click="openMarkerInfo($target, location)"></gmap-marker>
       -->
-      <gmap-styled-marker options="mOpts"></gmap-marker>
-      <gmap-styled-marker ng-repeat="location in locations"
-                          options="mOpts2(location)"></gmap-marker>
+      <gmap-marker-clusterer>
+        <gmap-styled-marker options="mOpts"></gmap-styled-marker>
+        <gmap-styled-marker ng-repeat="location in locations"
+                            options="mOpts2(location)"></gmap-styled-marker>
+      </gmap-marker-clusterer>
     </gmap-map>
   </div>
 </div>
