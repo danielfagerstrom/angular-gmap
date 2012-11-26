@@ -109,7 +109,7 @@ app.directive 'gmapMap', ['$parse', ($parse) ->
     for attr in ['class', 'id', 'style'] when attr of tAttrs
       mapDiv.attr attr, tAttrs[attr]
       tElm.removeAttr attr
-    (scope, elm, attrs, controller) ->
+    pre: (scope, elm, attrs, controller) ->
       h = new Helper $parse, scope, elm, attrs, controller
       opts = h.getOpts()
       widget = h.createOrGetWidget ->
@@ -138,6 +138,9 @@ app.directive 'gmapMarker', ['$parse', ($parse) ->
 
     h.bindMapEvents events, widget
     h.bindMapProperties properties, widget
+    scope.$emit 'create_marker', widget
+    scope.$on '$destroy', ->
+      scope.$emit 'destroy_marker', widget
 ]
 
 app.directive 'gmapInfoWindow', ['$parse', ($parse) ->
@@ -187,6 +190,9 @@ app.directive 'gmapStyledMarker', ['$parse', ($parse) ->
 
     h.bindMapEvents events, widget
     h.bindMapProperties properties, widget
+    scope.$emit 'create_marker', widget
+    scope.$on '$destroy', ->
+      scope.$emit 'destroy_marker', widget
 ]
 
 app.directive 'gmapInfoBubble', ['$parse', ($parse) ->
@@ -211,4 +217,33 @@ app.directive 'gmapInfoBubble', ['$parse', ($parse) ->
     _open = widget.open
     widget.open = (args...) ->
       _open.call widget, args...
+]
+
+app.directive 'gmapMarkerClusterer', ['$parse', ($parse) ->
+  events = 'click clusteringbegin clusteringend mouseout mouseover'
+  properties = 'averageCenter batchSize batchSizeIE calculator clusterClass ' +
+    'gridSize ignoreHidden imageExtension imagePath imageSizes maxZoom ' +
+    'minimumClusterSize printable styles title zoomOnClick'
+  require: '^?gmapMap'
+  restrict: 'E'
+  compile: (tElm, tAttrs) ->
+    noDraw = true
+    widget = undefined
+    pre: (scope, elm, attrs, controller) ->
+      h = new Helper $parse, scope, elm, attrs, controller
+      opts = h.getOpts()
+      widget = h.createOrGetWidget ->
+        new MarkerClusterer null, [], opts
+      h.getMapFromController widget
+
+      h.bindMapEvents events, widget
+      h.bindMapProperties properties, widget
+
+      scope.$on 'create_marker', (event, marker) ->
+        widget.addMarker marker, noDraw
+      scope.$on 'destroy_marker', (event, marker) ->
+        widget.removeMarker marker, noDraw
+    post: (scope, elm, attrs, controller) ->
+      noDraw = false
+      widget.repaint()
 ]
