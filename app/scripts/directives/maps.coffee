@@ -224,6 +224,7 @@ app.directive 'gmapMarkerClusterer', ['$parse', ($parse) ->
   properties = 'averageCenter batchSize batchSizeIE calculator clusterClass ' +
     'gridSize ignoreHidden imageExtension imagePath imageSizes maxZoom ' +
     'minimumClusterSize printable styles title zoomOnClick'
+  scope: true
   require: '^?gmapMap'
   restrict: 'E'
   compile: (tElm, tAttrs) ->
